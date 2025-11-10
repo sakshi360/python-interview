@@ -25,14 +25,6 @@ def greet():
 greet()
 ```
 
-Output:
-
-```
-Before function call
-Hello!
-After function call
-```
-
 </details>
 
 <details>
@@ -57,7 +49,7 @@ say_hi()
 
 <details>
 <summary><b>3. How to preserve function metadata with decorators?</b></summary>
-Use `functools.wraps` to copy name and docstring.
+Use `functools.wraps` to copy metadata like `__name__` and `__doc__`.
 ```python
 from functools import wraps
 
@@ -91,11 +83,11 @@ print(p)
 
 ---
 
-## ⚙️ Generators
+## ⚙️ Generators — Deep Dive
 
 <details>
 <summary><b>1. What is a generator function?</b></summary>
-A function that uses `yield` to return an iterator one value at a time.
+A function that uses `yield` to return one item at a time instead of the whole result.
 ```python
 def count_up_to(n):
     i = 1
@@ -110,34 +102,161 @@ for num in count_up_to(5):
 </details>
 
 <details>
-<summary><b>2. How is a generator different from a normal function?</b></summary>
-- Uses `yield` instead of `return`.
-- Remembers state between calls.
-- Consumes less memory (lazy evaluation).
+<summary><b>2. What is the difference between 'return' and 'yield'?</b></summary>
+- `return` ends the function and returns a value.
+- `yield` pauses the function, saving state for the next iteration.
 </details>
 
 <details>
-<summary><b>3. How to send values into a generator?</b></summary>
+<summary><b>3. How do you send values into a generator?</b></summary>
 ```python
 def greeter():
-    name = yield "Hello"
-    yield f"Hi {name}"
+    name = yield "Hello! What's your name?"
+    yield f"Hi {name}!"
 
 g = greeter()
 print(next(g))
 print(g.send("Sakshi"))
 
+```
+Output:
+```
+
+Hello! What's your name?
+Hi Sakshi!
+
 ````
 </details>
 
 <details>
-<summary><b>4. What is a generator expression?</b></summary>
-Similar to list comprehension but lazy.
+<summary><b>4. What is 'yield from' used for?</b></summary>
+Delegates part of a generator’s operation to another generator.
 ```python
-gen = (x*x for x in range(5))
-print(next(gen))
+def sub_gen():
+    yield from range(3)
+
+def main_gen():
+    yield from sub_gen()
+    yield 100
+
+for val in main_gen():
+    print(val)
 ````
 
+Output:
+
+```
+0
+1
+2
+100
+```
+
+</details>
+
+<details>
+<summary><b>5. How to close a generator?</b></summary>
+Use `.close()` to stop a generator and run any cleanup code.
+```python
+def my_gen():
+    try:
+        yield 1
+        yield 2
+    except GeneratorExit:
+        print("Generator closed")
+
+g = my_gen()
+print(next(g))
+g.close()
+
+````
+</details>
+
+<details>
+<summary><b>6. What happens when an exception is thrown into a generator?</b></summary>
+Use `.throw()` to inject an exception inside the generator.
+```python
+def my_gen():
+    try:
+        yield 1
+    except ValueError:
+        print("ValueError caught inside generator")
+
+g = my_gen()
+print(next(g))
+g.throw(ValueError)
+````
+
+</details>
+
+<details>
+<summary><b>7. How can you build generator pipelines?</b></summary>
+Generators can be chained to process data lazily.
+```python
+def read_lines(lines):
+    for line in lines:
+        yield line.strip()
+
+def filter_nonempty(lines):
+for line in lines:
+if line:
+yield line
+
+lines = ["Python", "", "AWS"]
+for line in filter_nonempty(read_lines(lines)):
+print(line)
+
+```
+Output:
+```
+
+Python
+AWS
+
+````
+</details>
+
+<details>
+<summary><b>8. How can you read large files lazily?</b></summary>
+```python
+def read_file_in_chunks(filename, chunk_size=1024):
+    with open(filename, 'r') as f:
+        while True:
+            data = f.read(chunk_size)
+            if not data:
+                break
+            yield data
+
+for chunk in read_file_in_chunks('bigdata.txt'):
+    process(chunk)
+````
+
+</details>
+
+<details>
+<summary><b>9. How can you use generators with decorators?</b></summary>
+```python
+from functools import wraps
+
+def log_gen(func):
+@wraps(func)
+def wrapper(*args, **kwargs):
+print(f"Starting generator {func.**name**}")
+for value in func(*args, **kwargs):
+print(f"Yielded: {value}")
+yield value
+print(f"Generator {func.**name**} finished")
+return wrapper
+
+@log_gen
+def squares(n):
+for i in range(n):
+yield i*i
+
+for num in squares(3):
+pass
+
+````
 </details>
 
 ---
@@ -146,7 +265,7 @@ print(next(gen))
 
 <details>
 <summary><b>1. What makes an object iterable?</b></summary>
-An object implementing `__iter__()` returning an iterator object that has `__next__()`.
+An object implementing `__iter__()` that returns an iterator object which defines `__next__()`.
 </details>
 
 <details>
@@ -157,21 +276,19 @@ class Counter:
         self.current = start
         self.end = end
 
-```
-def __iter__(self):
-    return self
+    def __iter__(self):
+        return self
 
-def __next__(self):
-    if self.current > self.end:
-        raise StopIteration
-    self.current += 1
-    return self.current - 1
-```
+    def __next__(self):
+        if self.current > self.end:
+            raise StopIteration
+        self.current += 1
+        return self.current - 1
 
 for i in Counter(1, 3):
-print(i)
-
+    print(i)
 ````
+
 </details>
 
 ---
@@ -192,9 +309,9 @@ class FileManager:
         self.file.close()
 
 with FileManager('demo.txt', 'w') as f:
-    f.write('Hello')
-````
+f.write('Hello')
 
+````
 </details>
 
 <details>
@@ -204,16 +321,16 @@ from contextlib import contextmanager
 
 @contextmanager
 def open_file(name, mode):
-f = open(name, mode)
-try:
-yield f
-finally:
-f.close()
+    f = open(name, mode)
+    try:
+        yield f
+    finally:
+        f.close()
 
 with open_file('demo.txt', 'w') as f:
-f.write('Hello')
-
+    f.write('Hello')
 ````
+
 </details>
 
 ---
@@ -228,8 +345,7 @@ nums = [1, 2, 3, 4]
 print(list(map(lambda x: x*2, nums)))      # [2, 4, 6, 8]
 print(list(filter(lambda x: x%2==0, nums))) # [2, 4]
 print(reduce(lambda a,b: a+b, nums))        # 10
-````
-
+```
 </details>
 
 <details>
@@ -305,7 +421,7 @@ for i in count(1):
 
 ## 🧾 Summary
 
-This file includes **hands-on code snippets** for mastering advanced Python concepts — decorators, generators, iterators, context managers, functional programming, and performance tricks.
+This file now includes **comprehensive hands-on code snippets** for advanced Python — covering decorators, iterators, and **complete generator internals** (yield from, send, throw, close, and pipelines) along with functional programming and idioms.
 
 ---
 
