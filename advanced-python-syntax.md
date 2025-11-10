@@ -1,13 +1,13 @@
 # ⚙️ Advanced Python Code Q&A — Decorators, Generators, Iterators, and Beyond
 
-A practical collection of **interview-focused advanced Python code examples** and explanations on decorators, generators, context managers, and functional programming.
+A practical collection of **interview-focused advanced Python code examples** and explanations — including decorators, generators, iterators, context managers, and functional programming.
 
 ---
 
 ## 🧩 Decorators
 
-<details>
-<summary><b>1. What is a decorator?</b></summary>
+### 1. What is a decorator?
+
 A decorator is a function that takes another function as input and modifies or extends its behavior without changing its code.
 
 ```python
@@ -25,10 +25,18 @@ def greet():
 greet()
 ```
 
-</details>
+**Output:**
 
-<details>
-<summary><b>2. How to create a decorator that takes arguments?</b></summary>
+```
+Before function call
+Hello!
+After function call
+```
+
+---
+
+### 2. How to create a decorator that takes arguments?
+
 ```python
 def repeat(n):
     def decorator(func):
@@ -40,16 +48,17 @@ def repeat(n):
 
 @repeat(3)
 def say_hi():
-print("Hi!")
+    print("Hi!")
 
 say_hi()
+```
 
-````
-</details>
+---
 
-<details>
-<summary><b>3. How to preserve function metadata with decorators?</b></summary>
-Use `functools.wraps` to copy metadata like `__name__` and `__doc__`.
+### 3. How to preserve function metadata in decorators?
+
+Use `functools.wraps` to copy the original function’s metadata.
+
 ```python
 from functools import wraps
 
@@ -58,13 +67,14 @@ def deco(func):
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
     return wrapper
-````
+```
 
-</details>
+---
 
-<details>
-<summary><b>4. What are class decorators?</b></summary>
-A decorator applied to a class instead of a function.
+### 4. What are class decorators?
+
+Decorators can also modify class behavior.
+
 ```python
 def add_repr(cls):
     cls.__repr__ = lambda self: f"{cls.__name__}({self.__dict__})"
@@ -72,22 +82,27 @@ def add_repr(cls):
 
 @add_repr
 class Point:
-def **init**(self, x, y):
-self.x, self.y = x, y
+    def __init__(self, x, y):
+        self.x, self.y = x, y
 
 p = Point(1, 2)
 print(p)
+```
 
-````
-</details>
+**Output:**
+
+```
+Point({'x': 1, 'y': 2})
+```
 
 ---
 
 ## ⚙️ Generators — Deep Dive
 
-<details>
-<summary><b>1. What is a generator function?</b></summary>
-A function that uses `yield` to return one item at a time instead of the whole result.
+### 1. What is a generator function?
+
+A function that yields one item at a time instead of returning all results at once.
+
 ```python
 def count_up_to(n):
     i = 1
@@ -97,40 +112,42 @@ def count_up_to(n):
 
 for num in count_up_to(5):
     print(num)
-````
+```
 
-</details>
+---
 
-<details>
-<summary><b>2. What is the difference between 'return' and 'yield'?</b></summary>
-- `return` ends the function and returns a value.
-- `yield` pauses the function, saving state for the next iteration.
-</details>
+### 2. Difference between `return` and `yield`
 
-<details>
-<summary><b>3. How do you send values into a generator?</b></summary>
+* `return` terminates the function.
+* `yield` pauses the function and resumes later, remembering state.
+
+---
+
+### 3. Sending values into a generator
+
 ```python
 def greeter():
     name = yield "Hello! What's your name?"
     yield f"Hi {name}!"
 
 g = greeter()
-print(next(g))
-print(g.send("Sakshi"))
-
-```
-Output:
+print(next(g))      # Starts the generator
+print(g.send("Sakshi"))  # Sends a value into generator
 ```
 
+**Output:**
+
+```
 Hello! What's your name?
 Hi Sakshi!
+```
 
-````
-</details>
+---
 
-<details>
-<summary><b>4. What is 'yield from' used for?</b></summary>
+### 4. Using `yield from`
+
 Delegates part of a generator’s operation to another generator.
+
 ```python
 def sub_gen():
     yield from range(3)
@@ -141,9 +158,9 @@ def main_gen():
 
 for val in main_gen():
     print(val)
-````
+```
 
-Output:
+**Output:**
 
 ```
 0
@@ -152,11 +169,10 @@ Output:
 100
 ```
 
-</details>
+---
 
-<details>
-<summary><b>5. How to close a generator?</b></summary>
-Use `.close()` to stop a generator and run any cleanup code.
+### 5. Closing a generator
+
 ```python
 def my_gen():
     try:
@@ -168,13 +184,19 @@ def my_gen():
 g = my_gen()
 print(next(g))
 g.close()
+```
 
-````
-</details>
+**Output:**
 
-<details>
-<summary><b>6. What happens when an exception is thrown into a generator?</b></summary>
-Use `.throw()` to inject an exception inside the generator.
+```
+1
+Generator closed
+```
+
+---
+
+### 6. Throwing exceptions inside generators
+
 ```python
 def my_gen():
     try:
@@ -185,39 +207,45 @@ def my_gen():
 g = my_gen()
 print(next(g))
 g.throw(ValueError)
-````
+```
 
-</details>
+**Output:**
 
-<details>
-<summary><b>7. How can you build generator pipelines?</b></summary>
-Generators can be chained to process data lazily.
+```
+1
+ValueError caught inside generator
+```
+
+---
+
+### 7. Generator pipelines (chaining generators)
+
 ```python
 def read_lines(lines):
     for line in lines:
         yield line.strip()
 
 def filter_nonempty(lines):
-for line in lines:
-if line:
-yield line
+    for line in lines:
+        if line:
+            yield line
 
 lines = ["Python", "", "AWS"]
 for line in filter_nonempty(read_lines(lines)):
-print(line)
-
-```
-Output:
+    print(line)
 ```
 
+**Output:**
+
+```
 Python
 AWS
+```
 
-````
-</details>
+---
 
-<details>
-<summary><b>8. How can you read large files lazily?</b></summary>
+### 8. Reading large files lazily
+
 ```python
 def read_file_in_chunks(filename, chunk_size=1024):
     with open(filename, 'r') as f:
@@ -229,47 +257,54 @@ def read_file_in_chunks(filename, chunk_size=1024):
 
 for chunk in read_file_in_chunks('bigdata.txt'):
     process(chunk)
-````
+```
 
-</details>
+---
 
-<details>
-<summary><b>9. How can you use generators with decorators?</b></summary>
+### 9. Generators + Decorators
+
 ```python
 from functools import wraps
 
 def log_gen(func):
-@wraps(func)
-def wrapper(*args, **kwargs):
-print(f"Starting generator {func.**name**}")
-for value in func(*args, **kwargs):
-print(f"Yielded: {value}")
-yield value
-print(f"Generator {func.**name**} finished")
-return wrapper
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"Starting generator {func.__name__}")
+        for value in func(*args, **kwargs):
+            print(f"Yielded: {value}")
+            yield value
+        print(f"Generator {func.__name__} finished")
+    return wrapper
 
 @log_gen
 def squares(n):
-for i in range(n):
-yield i*i
+    for i in range(n):
+        yield i*i
 
 for num in squares(3):
-pass
+    pass
+```
 
-````
-</details>
+**Output:**
+
+```
+Starting generator squares
+Yielded: 0
+Yielded: 1
+Yielded: 4
+Generator squares finished
+```
 
 ---
 
 ## 🔁 Iterators
 
-<details>
-<summary><b>1. What makes an object iterable?</b></summary>
-An object implementing `__iter__()` that returns an iterator object which defines `__next__()`.
-</details>
+### 1. What makes an object iterable?
 
-<details>
-<summary><b>2. How to create a custom iterator?</b></summary>
+An object implementing `__iter__()` and returning an iterator object with `__next__()`.
+
+### 2. Creating a custom iterator
+
 ```python
 class Counter:
     def __init__(self, start, end):
@@ -287,17 +322,14 @@ class Counter:
 
 for i in Counter(1, 3):
     print(i)
-````
-
-</details>
+```
 
 ---
 
 ## 🧠 Context Managers
 
-<details>
-<summary><b>1. What are context managers?</b></summary>
-They handle setup and teardown logic using `__enter__()` and `__exit__()`.
+### 1. Basic context manager
+
 ```python
 class FileManager:
     def __init__(self, filename, mode):
@@ -309,13 +341,11 @@ class FileManager:
         self.file.close()
 
 with FileManager('demo.txt', 'w') as f:
-f.write('Hello')
+    f.write('Hello')
+```
 
-````
-</details>
+### 2. Using @contextmanager
 
-<details>
-<summary><b>2. How to create context managers using decorators?</b></summary>
 ```python
 from contextlib import contextmanager
 
@@ -329,16 +359,14 @@ def open_file(name, mode):
 
 with open_file('demo.txt', 'w') as f:
     f.write('Hello')
-````
-
-</details>
+```
 
 ---
 
 ## 🧰 Functional Programming
 
-<details>
-<summary><b>1. What are map, filter, and reduce?</b></summary>
+### 1. map, filter, reduce
+
 ```python
 from functools import reduce
 nums = [1, 2, 3, 4]
@@ -346,33 +374,29 @@ print(list(map(lambda x: x*2, nums)))      # [2, 4, 6, 8]
 print(list(filter(lambda x: x%2==0, nums))) # [2, 4]
 print(reduce(lambda a,b: a+b, nums))        # 10
 ```
-</details>
 
-<details>
-<summary><b>2. What is partial function application?</b></summary>
+### 2. Partial function application
+
 ```python
 from functools import partial
 
 def power(base, exp):
-return base ** exp
+    return base ** exp
 
 square = partial(power, exp=2)
 print(square(5))  # 25
+```
 
-````
-</details>
+### 3. Higher-order functions
 
-<details>
-<summary><b>3. What are higher-order functions?</b></summary>
 Functions that take other functions as arguments or return them.
-</details>
 
 ---
 
 ## ⚡ Advanced Tricks & Idioms
 
-<details>
-<summary><b>1. What is memoization (caching)?</b></summary>
+### 1. Memoization with caching
+
 ```python
 from functools import lru_cache
 
@@ -383,31 +407,27 @@ def fib(n):
     return fib(n-1) + fib(n-2)
 
 print(fib(10))
-````
+```
 
-</details>
+### 2. Chaining multiple iterables
 
-<details>
-<summary><b>2. How to chain multiple iterables?</b></summary>
 ```python
 from itertools import chain
 for i in chain([1,2], [3,4]):
     print(i)
 ```
-</details>
 
-<details>
-<summary><b>3. How to group data using itertools.groupby?</b></summary>
+### 3. Grouping data using itertools.groupby
+
 ```python
 from itertools import groupby
 nums = [1,1,2,2,3,3]
 for k, g in groupby(nums):
     print(k, list(g))
 ```
-</details>
 
-<details>
-<summary><b>4. How to create infinite iterators?</b></summary>
+### 4. Infinite iterators
+
 ```python
 from itertools import count, cycle
 for i in count(1):
@@ -415,13 +435,12 @@ for i in count(1):
         break
     print(i)
 ```
-</details>
 
 ---
 
 ## 🧾 Summary
 
-This file now includes **comprehensive hands-on code snippets** for advanced Python — covering decorators, iterators, and **complete generator internals** (yield from, send, throw, close, and pipelines) along with functional programming and idioms.
+This file now includes **fully formatted, interview-ready Python code examples** — covering decorators, iterators, and **complete generator internals** (`yield from`, `.send()`, `.throw()`, `.close()`, pipelines, and lazy evaluation) — along with functional programming and best practices.
 
 ---
 
